@@ -1,6 +1,6 @@
 name: Access request
 description: Request read access to the Tazama rules and configuration mirrors
-title: "Access request: "
+title: "Access request: <your name and organisation>"
 labels: [access-request]
 body:
   - type: markdown
