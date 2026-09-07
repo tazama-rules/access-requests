@@ -14,7 +14,7 @@ The Tazama rule processors and full configuration source live in private reposit
 ## How it works
 
 1. Open an [access request](../../issues/new/choose) - a short form, takes a minute. Use the GitHub account that should receive access.
-2. A maintainer reviews it (we usually cross-check with the [Tazama Slack](https://tazama.org)).
+2. A maintainer reviews it (we usually cross-check with the [Tazama Slack](https://www.tazama.org/slack-access/)).
 3. On approval, you'll receive an invitation to the `tazama-rules` organization on the account that filed the request - accept it and you have read access to all mirrors.
 
 Access is read-only. The mirrors carry the released `main` branch and tags, refreshed at each release. Issues and pull requests on the mirrors are disabled - to report problems or contribute, ask in Slack or note it in your access request.
