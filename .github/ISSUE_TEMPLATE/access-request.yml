@@ -1,0 +1,44 @@
+name: Access request
+description: Request read access to the Tazama rules and configuration mirrors
+title: "Access request: "
+labels: [access-request]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Just want to run Tazama?** You don't need source access - pre-built images are public on [DockerHub (tazamaorg)](https://hub.docker.com/u/tazamaorg) and the deployment tooling is in the public [tazama-lf](https://github.com/tazama-lf) org.
+
+        File this request from the GitHub account that should receive access - the invitation goes to the account that opens this issue.
+  - type: dropdown
+    id: use-case
+    attributes:
+      label: What do you need access for?
+      options:
+        - Deploy the full configuration for an implementation
+        - Inspect the rule processor source code
+        - Both of the above
+        - Contribute to the rules or configuration
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Tell us about your implementation or project
+      description: A sentence or two - which organisation/project, and what you're building with Tazama.
+    validations:
+      required: true
+  - type: input
+    id: slack-name
+    attributes:
+      label: Your name on the Tazama Slack
+      description: Helps us cross-check the request - most community coordination happens on Slack.
+    validations:
+      required: false
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Terms
+      options:
+        - label: I understand access is read-only and that the mirrored source is private to the Tazama community and not for redistribution.
+          required: true

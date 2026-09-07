@@ -1,0 +1,59 @@
+name: Process approved access request
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  invite:
+    if: github.event.label.name == 'approved' && contains(github.event.issue.labels.*.name, 'access-request')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mint invite token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        with:
+          app-id: ${{ secrets.ACCESS_APP_ID }}
+          private-key: ${{ secrets.ACCESS_APP_PRIVATE_KEY }}
+          owner: tazama-rules
+
+      - name: Send organization invitation
+        id: invite
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          AUTHOR_ID: ${{ github.event.issue.user.id }}
+        run: |
+          set -uo pipefail
+          if gh api "orgs/tazama-rules/memberships/${AUTHOR}" --silent 2>/dev/null; then
+            echo "result=member" >> "$GITHUB_OUTPUT"
+          elif gh api orgs/tazama-rules/invitations -F invitee_id="${AUTHOR_ID}" -f role=direct_member --silent; then
+            echo "result=invited" >> "$GITHUB_OUTPUT"
+          else
+            # most common cause: an invitation is already pending
+            echo "result=failed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment and close
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE: ${{ github.event.issue.number }}
+          RESULT: ${{ steps.invite.outputs.result }}
+        run: |
+          set -euo pipefail
+          case "$RESULT" in
+            invited)
+              MSG="@${AUTHOR} your request is approved - an invitation to the tazama-rules organization has been sent. Accept it at https://github.com/orgs/tazama-rules/invitation (invitations expire after 7 days)." ;;
+            member)
+              MSG="@${AUTHOR} you are already a member of tazama-rules - no invitation needed." ;;
+            *)
+              MSG="@${AUTHOR} your request is approved, but the invitation could not be sent automatically (an earlier invitation may still be pending). A maintainer will follow up." ;;
+          esac
+          gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" --body "$MSG"
+          if [ "$RESULT" != "failed" ]; then
+            gh issue close "$ISSUE" -R "$GITHUB_REPOSITORY" --reason completed
+          fi
